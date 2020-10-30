@@ -46,8 +46,13 @@ sharp_to_flat = [[['^C', '^D', '^F', '^G', '^A'],
                  [['^c\'', '^d\'', '^f\'', '^g\'', '^a\''],
                   ['_d\'', '_e\'', '_g\'', '_a\'', '_b\'']]]
 
-key_types = [['Maj', 'Dor', 'Phr', 'Lyd', 'Mix', 'Min', 'Loc'],
+"""key_types = [['Maj', 'Dor', 'Phr', 'Lyd', 'Mix', 'Min', 'Loc'],
              [0, 2, 3, 5, 7, 9, 11]
+             ]"""
+
+
+key_types = [['Dor', 'Phr', 'Lyd', 'Mix', 'Min', 'Loc', 'Maj'],
+             [10, 8, 7, 5, 3, 1, 0]
              ]
 
 
@@ -77,6 +82,7 @@ def transpose(music):
     music_pieces = split_into_pieces(music)
     music_pieces, keys = get_keys(music_pieces)
     return shift_notes(music_pieces, keys)
+
 
 def split_into_pieces(music):
     music_pieces = music.split("\n\n")
@@ -136,11 +142,14 @@ def shift_notes(music_pieces, keys):
 
 def shift_to_major(key):
     shift_value = chromatic_scale[1].index(key[0])
+    print(shift_value)
     scale_types = key_types[0]
-    distance_to_major_tonic = scale_types.index(key[1])
-    shift_value += (12 - distance_to_major_tonic)
-    if shift_value > len(chromatic_scale[1]):
-        shift_value -= len(chromatic_scale[1])  # In case we reach the end of the chromatic scale
+    distance_to_major_tonic = key_types[1][scale_types.index(key[1])]
+    shift_value += distance_to_major_tonic
+    print(key)
+    print(shift_value)
+    # if shift_value > len(chromatic_scale[1]):
+    #    shift_value -= len(chromatic_scale[1])  # In case we reach the end of the chromatic scale
     return shift_value
 
 
@@ -159,14 +168,13 @@ def shift_note(token, shift_value):
             if shift_value > index:
                 shift_value -= index
                 below_octave_index = len(chromatic_scale[i]) - 1 - shift_value
-                return chromatic_scale[i-1][below_octave_index]
-            return chromatic_scale[i][index-shift_value]
+                return chromatic_scale[i - 1][below_octave_index]
+            return chromatic_scale[i][index - shift_value]
     return token
 
 
 def convert_all_sharps_to_flats(music):
     music_pieces = music.split("\n\n")
-    #  print(music_pieces)
     for j, piece in enumerate(music_pieces):
         music_tokens = piece.split("\n")[2].split(" ")
         for i, token in enumerate(music_tokens):
@@ -191,9 +199,9 @@ def concatenate_music_piece(piece, music_tokens):
 
 def concatenate_music_pieces(music_pieces):
     music = ""
-    for i in range(len(music_pieces)-1):
+    for i in range(len(music_pieces) - 1):
         music += music_pieces[i] + "\n\n"
-    music += music_pieces[len(music_pieces)-1]
+    music += music_pieces[len(music_pieces) - 1]
     return music
 
 
