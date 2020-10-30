@@ -135,7 +135,6 @@ def shift_notes(music_pieces, keys):
 
 
 def shift_to_major(key):
-    print(key)
     shift_value = chromatic_scale[1].index(key[0])
     scale_types = key_types[0]
     distance_to_major_tonic = scale_types.index(key[1])
@@ -207,9 +206,21 @@ def convert_sharp_to_flat(token):
     return token
 
 
+def evaluate_transposing(music, transposed_music, pieces_to_compare):
+    music_pieces = split_into_pieces(music)
+    transposed_music_pieces = split_into_pieces(transposed_music)
+    for piece in pieces_to_compare:
+        print(str(piece) + "ST PIECE")
+        print("___________________________________________________\n")
+        print("Original:\n")
+        print(music_pieces[piece] + "\n")
+        print("Transposed:\n")
+        print(transposed_music_pieces[piece] + "\n")
+
+
 if __name__ == '__main__':
     music = import_music_samples()
     music_without_metrics = remove_meters(music)
     music_without_metrics_and_with_flats = convert_all_sharps_to_flats(music_without_metrics)
-    #  print(music_without_metrics_and_with_flats)
     transposed_music = transpose(music_without_metrics_and_with_flats)
+    evaluate_transposing(music_without_metrics_and_with_flats, transposed_music, [0, 5, 100])
