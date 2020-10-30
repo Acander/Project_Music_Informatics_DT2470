@@ -34,8 +34,8 @@ valid_metrics_regex_for_bugs = [
     '\[M:9\/8\] '
 ]
 
-#  chromatic_scale_sharps = ['C', '^C', 'D', '^D', 'E', 'F', '^F', 'G', '^G', 'A', '^A', 'B']
-chromatic_scale = [['C', '_D', 'D', '_E', 'E', 'F', '_G', 'G', '_A', 'A', '_B', 'B'],
+chromatic_scale = [['C\'', '_D\'', 'D\'', '_E\'', 'F\'', '_G\'', 'G', '_A\'', 'A\'', '_B\'', 'B\''],
+                   ['C', '_D', 'D', '_E', 'E', 'F', '_G', 'G', '_A', 'A', '_B', 'B'],
                    ['c', '_d', 'd', '_e', 'e', 'f', '_g', 'g', '_a', 'a', '_b', 'b'],
                    ['c\'', '_d\'', 'd\'', '_e\'', 'e\'', 'f\'', '_G\'', 'G\'', '_A\'', 'A\'', '_B\'', 'B\'']]
 
@@ -68,11 +68,16 @@ def remove_meters(music):
     return music
 
 
+"""
+We are transposing downwards, e.g c not could be transposed down five steps to a G.
+"""
+
+
 def transpose(music):
     music_pieces = split_into_pieces(music)
     music_pieces, keys = get_keys(music_pieces)
     music_pieces = shift_notes(music_pieces, keys)
-
+    return concatenate_music_pieces(music_pieces)
 
 def split_into_pieces(music):
     music_pieces = music.split("\n\n")
@@ -120,24 +125,40 @@ def key_token(music_piece):
 
 
 def shift_notes(music_pieces, keys):
-    for i, music_piece in enumerate(music_pieces):
-        shift_value = chromatic_scale.index(keys[i])
-        shift_value += shift_to_major(keys[i])
-        if shift_value > len(chromatic_scale):
-            shift_value -= len(chromatic_scale)
+    for i, piece in enumerate(music_pieces):
+        shift_value = shift_to_major(keys[i])
+        music_tokens = piece.split("\n")[2].split(" ")
+        music_tokens = shift(music_tokens, shift_value)
+        music_pieces[i] = concatenate_music_piece(piece, music_tokens)
+    return concatenate_music_pieces(music_pieces)
 
 
 def shift_to_major(key):
+    shift_value = chromatic_scale.index(key)
     scale_types = key_types[0]
-    #  print(key)
-
-    return scale_types.index(key[1])
+    distance_to_major_tonic = scale_types.index(key[1])
+    shift_value += (12 - distance_to_major_tonic)
+    if shift_value > len(chromatic_scale):
+        shift_value -= len(chromatic_scale)  # In case we reach the end of the chromatic scale
+    return shift_value
 
 
 def shift(music_tokens, shift_value):
     if shift_value == 0:
         return music_tokens
-    music_tokens
+    for i, token in enumerate(music_tokens):
+        music_tokens[i] = shift_note(token, shift_value)
+    return concatenate_string_array(music_tokens)
+
+
+def shift_note(token, shift_value):
+    for i in range(len(chromatic_scale)):
+        if token in chromatic_scale[i]:
+            index = chromatic_scale[i].index(token)
+            if shift_value > index:
+                below_octave_index = len(chromatic_scale) - shift_value - index
+                return chromatic_scale[i][below_octave_index]
+    return 0
 
 
 def convert_all_sharps_to_flats(music):
@@ -148,12 +169,9 @@ def convert_all_sharps_to_flats(music):
         for i, token in enumerate(music_tokens):
             music_tokens[i] = convert_sharp_to_flat(token)
         music_tokens = concatenate_string_array(music_tokens)
-        music_pieces[j] = piece.split("\n")[0] + "\n" + piece.split("\n")[1] + "\n" + music_tokens
-    music = " "
-    for piece in music_pieces:
-        music += piece + "\n\n"
+        music_pieces[j] = concatenate_music_piece(piece, music_tokens)
 
-    return music
+    return concatenate_music_pieces(music_pieces)
 
 
 def concatenate_string_array(string_array):
@@ -161,6 +179,17 @@ def concatenate_string_array(string_array):
     for string in string_array:
         final_string += string + " "
     return final_string
+
+
+def concatenate_music_piece(piece, music_tokens):
+    return piece.split("\n")[0] + "\n" + piece.split("\n")[1] + "\n" + music_tokens
+
+
+def concatenate_music_pieces(music_pieces):
+    music = " "
+    for piece in music_pieces:
+        music += piece + "\n\n"
+    return music
 
 
 def convert_sharp_to_flat(token):
