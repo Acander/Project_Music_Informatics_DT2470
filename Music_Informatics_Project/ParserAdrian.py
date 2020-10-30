@@ -134,12 +134,12 @@ def shift_notes(music_pieces, keys):
 
 
 def shift_to_major(key):
-    shift_value = chromatic_scale.index(key)
+    shift_value = chromatic_scale[1].index(key[0])
     scale_types = key_types[0]
     distance_to_major_tonic = scale_types.index(key[1])
     shift_value += (12 - distance_to_major_tonic)
-    if shift_value > len(chromatic_scale):
-        shift_value -= len(chromatic_scale)  # In case we reach the end of the chromatic scale
+    if shift_value > len(chromatic_scale[1]):
+        shift_value -= len(chromatic_scale[1])  # In case we reach the end of the chromatic scale
     return shift_value
 
 
@@ -156,9 +156,11 @@ def shift_note(token, shift_value):
         if token in chromatic_scale[i]:
             index = chromatic_scale[i].index(token)
             if shift_value > index:
-                below_octave_index = len(chromatic_scale) - shift_value - index
-                return chromatic_scale[i][below_octave_index]
-    return 0
+                shift_value -= index
+                below_octave_index = len(chromatic_scale[i]) - 1 - shift_value
+                return chromatic_scale[i-1][below_octave_index]
+            return chromatic_scale[i][index-shift_value]
+    return token
 
 
 def convert_all_sharps_to_flats(music):
@@ -206,4 +208,5 @@ if __name__ == '__main__':
     music_without_metrics = remove_meters(music)
     music_without_metrics_and_with_flats = convert_all_sharps_to_flats(music_without_metrics)
     #  print(music_without_metrics_and_with_flats)
-    transpose(music_without_metrics)
+    transposed_music = transpose(music_without_metrics)
+    print(transposed_music)
