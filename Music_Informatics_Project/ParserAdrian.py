@@ -35,9 +35,9 @@ valid_metrics_regex_for_bugs = [
 ]
 
 #  chromatic_scale_sharps = ['C', '^C', 'D', '^D', 'E', 'F', '^F', 'G', '^G', 'A', '^A', 'B']
-chromatic_scale_flats = [['C', '_D', 'D', '_E', 'E', 'F', '_G', 'G', '_A', 'A', '_B', 'B'],
-                         ['c', '_d', 'd', '_e', 'e', 'f', '_g', 'g', '_a', 'a', '_b', 'b'],
-                         ['c\'', '_d\'', 'd\'', '_e\'', 'e\'', 'f\'', '_G\'', 'G\'', '_A\'', 'A\'', '_B\'', 'B\'']]
+chromatic_scale = [['C', '_D', 'D', '_E', 'E', 'F', '_G', 'G', '_A', 'A', '_B', 'B'],
+                   ['c', '_d', 'd', '_e', 'e', 'f', '_g', 'g', '_a', 'a', '_b', 'b'],
+                   ['c\'', '_d\'', 'd\'', '_e\'', 'e\'', 'f\'', '_G\'', 'G\'', '_A\'', 'A\'', '_B\'', 'B\'']]
 
 sharp_to_flat = [[['^C', '^D', '^F', '^G', '^A'],
                   ['_D', '_E', '_G', '_A', '_B']],
@@ -120,10 +120,11 @@ def key_token(music_piece):
 
 
 def shift_notes(music_pieces, keys):
-    shifts = []
     for i, music_piece in enumerate(music_pieces):
-        shifts.append(shift_to_major(keys[i]))
-        #  shifts[i] +=
+        shift_value = chromatic_scale.index(keys[i])
+        shift_value += shift_to_major(keys[i])
+        if shift_value > len(chromatic_scale):
+            shift_value -= len(chromatic_scale)
 
 
 def shift_to_major(key):
@@ -166,7 +167,6 @@ def convert_sharp_to_flat(token):
     if token[0] == '^':
         for octave in sharp_to_flat:
             if token in octave[0]:
-                print("It happened")
                 note = octave[0].index(token)
                 return octave[1][note]
     return token
@@ -176,5 +176,5 @@ if __name__ == '__main__':
     music = import_music_samples()
     music_without_metrics = remove_meters(music)
     music_without_metrics_and_with_flats = convert_all_sharps_to_flats(music_without_metrics)
-    print(music_without_metrics_and_with_flats)
+    #  print(music_without_metrics_and_with_flats)
     transpose(music_without_metrics)
