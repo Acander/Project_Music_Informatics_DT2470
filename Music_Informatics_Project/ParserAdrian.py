@@ -120,7 +120,9 @@ def is_flat(letter_after_tonic):
 
 
 def key_token(music_piece):
-    return music_piece.split("\n")[1]
+    if music_piece.split("\n")[1][1] == "K":
+        return music_piece.split("\n")[1]
+    return music_piece.split("\n")[2]
 
 
 def shift_notes(music_pieces, keys):
@@ -178,8 +180,9 @@ def convert_all_sharps_to_flats(music):
 
 def concatenate_string_array(string_array):
     final_string = ""
-    for string in string_array:
-        final_string += string + " "
+    for i in range(len(string_array) - 1):
+        final_string += string_array[i] + " "
+    final_string += string_array[len(string_array) - 1]
     return final_string
 
 
@@ -188,7 +191,7 @@ def concatenate_music_piece(piece, music_tokens):
 
 
 def concatenate_music_pieces(music_pieces):
-    music = " "
+    music = ""
     for i in range(len(music_pieces)-1):
         music += music_pieces[i] + "\n\n"
     music += music_pieces[len(music_pieces)-1]
@@ -208,5 +211,5 @@ if __name__ == '__main__':
     music = import_music_samples()
     music_without_metrics = remove_meters(music)
     music_without_metrics_and_with_flats = convert_all_sharps_to_flats(music_without_metrics)
-    print(music_without_metrics_and_with_flats)
+    #  print(music_without_metrics_and_with_flats)
     transposed_music = transpose(music_without_metrics_and_with_flats)
