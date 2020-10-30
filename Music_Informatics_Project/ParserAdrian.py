@@ -76,8 +76,7 @@ We are transposing downwards, e.g c not could be transposed down five steps to a
 def transpose(music):
     music_pieces = split_into_pieces(music)
     music_pieces, keys = get_keys(music_pieces)
-    music_pieces = shift_notes(music_pieces, keys)
-    return concatenate_music_pieces(music_pieces)
+    return shift_notes(music_pieces, keys)
 
 def split_into_pieces(music):
     music_pieces = music.split("\n\n")
@@ -93,8 +92,8 @@ def remove_noisy_data(music_pieces):
 
 def get_keys(music_pieces):
     keys = []
-    for music_piece in music_pieces:
-        key = get_key(music_piece)
+    for piece in music_pieces:
+        key = get_key(piece)
         keys.append(key)
 
     return music_pieces, keys
@@ -134,6 +133,7 @@ def shift_notes(music_pieces, keys):
 
 
 def shift_to_major(key):
+    print(key)
     shift_value = chromatic_scale[1].index(key[0])
     scale_types = key_types[0]
     distance_to_major_tonic = scale_types.index(key[1])
@@ -189,8 +189,9 @@ def concatenate_music_piece(piece, music_tokens):
 
 def concatenate_music_pieces(music_pieces):
     music = " "
-    for piece in music_pieces:
-        music += piece + "\n\n"
+    for i in range(len(music_pieces)-1):
+        music += music_pieces[i] + "\n\n"
+    music += music_pieces[len(music_pieces)-1]
     return music
 
 
@@ -207,6 +208,5 @@ if __name__ == '__main__':
     music = import_music_samples()
     music_without_metrics = remove_meters(music)
     music_without_metrics_and_with_flats = convert_all_sharps_to_flats(music_without_metrics)
-    #  print(music_without_metrics_and_with_flats)
-    transposed_music = transpose(music_without_metrics)
-    print(transposed_music)
+    print(music_without_metrics_and_with_flats)
+    transposed_music = transpose(music_without_metrics_and_with_flats)
