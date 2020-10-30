@@ -136,6 +136,7 @@ def shift_notes(music_pieces, keys):
         shift_value = shift_to_major(keys[i])
         music_tokens = piece.split("\n")[2].split(" ")
         music_tokens = shift(music_tokens, shift_value)
+        #  print(music_tokens)
         music_pieces[i] = concatenate_music_piece(piece, music_tokens)
     return concatenate_music_pieces(music_pieces)
 
@@ -155,13 +156,14 @@ def shift_to_major(key):
 
 def shift(music_tokens, shift_value):
     if shift_value == 0:
-        return music_tokens
+        return concatenate_string_array(music_tokens)
     for i, token in enumerate(music_tokens):
         music_tokens[i] = shift_note(token, shift_value)
     return concatenate_string_array(music_tokens)
 
 
 def shift_note(token, shift_value):
+    shift_value -= 1
     for i in range(len(chromatic_scale)):
         if token in chromatic_scale[i]:
             index = chromatic_scale[i].index(token)
@@ -169,7 +171,7 @@ def shift_note(token, shift_value):
                 shift_value -= index
                 below_octave_index = len(chromatic_scale[i]) - 1 - shift_value
                 return chromatic_scale[i - 1][below_octave_index]
-            return chromatic_scale[i][index - shift_value]
+            return chromatic_scale[i][index - shift_value - 1]
     return token
 
 
