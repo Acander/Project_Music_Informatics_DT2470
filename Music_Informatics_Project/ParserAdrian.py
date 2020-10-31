@@ -34,10 +34,10 @@ valid_metrics_regex_for_bugs = [
     '\[M:9\/8\] '
 ]
 
-chromatic_scale = [['C\'', '_D\'', 'D\'', '_E\'', 'F\'', '_G\'', 'G', '_A\'', 'A\'', '_B\'', 'B\''],
+chromatic_scale = [['C\'', '_D\'', 'D\'', '_E\'', 'E\'', 'F\'', '_G\'', 'G', '_A\'', 'A\'', '_B\'', 'B\''],
                    ['C', '_D', 'D', '_E', 'E', 'F', '_G', 'G', '_A', 'A', '_B', 'B'],
                    ['c', '_d', 'd', '_e', 'e', 'f', '_g', 'g', '_a', 'a', '_b', 'b'],
-                   ['c\'', '_d\'', 'd\'', '_e\'', 'e\'', 'f\'', '_G\'', 'G\'', '_A\'', 'A\'', '_B\'', 'B\'']]
+                   ['c\'', '_d\'', 'd\'', '_e\'', 'e\'', 'f\'', '_g\'', 'g\'', '_a\'', 'a\'', '_b\'', 'b\'']]
 
 sharp_to_flat = [[['^C', '^D', '^F', '^G', '^A'],
                   ['_D', '_E', '_G', '_A', '_B']],
@@ -45,11 +45,6 @@ sharp_to_flat = [[['^C', '^D', '^F', '^G', '^A'],
                   ['_d', '_e', '_g', '_a', '_b']],
                  [['^c\'', '^d\'', '^f\'', '^g\'', '^a\''],
                   ['_d\'', '_e\'', '_g\'', '_a\'', '_b\'']]]
-
-"""key_types = [['Maj', 'Dor', 'Phr', 'Lyd', 'Mix', 'Min', 'Loc'],
-             [0, 2, 3, 5, 7, 9, 11]
-             ]"""
-
 
 key_types = [['Dor', 'Phr', 'Lyd', 'Mix', 'Min', 'Loc', 'Maj'],
              [10, 8, 7, 5, 3, 1, 0]
@@ -69,7 +64,6 @@ def remove_meters(music):
         music, _ = re.subn(metric_reg, '', music)
         music, _ = re.subn(valid_metrics_regex_for_bugs[i], '', music)
 
-    #  print(music)
     return music
 
 
@@ -136,21 +130,15 @@ def shift_notes(music_pieces, keys):
         shift_value = shift_to_major(keys[i])
         music_tokens = piece.split("\n")[2].split(" ")
         music_tokens = shift(music_tokens, shift_value)
-        #  print(music_tokens)
         music_pieces[i] = concatenate_music_piece(piece, music_tokens)
     return concatenate_music_pieces(music_pieces)
 
 
 def shift_to_major(key):
     shift_value = chromatic_scale[1].index(key[0])
-    print(shift_value)
     scale_types = key_types[0]
     distance_to_major_tonic = key_types[1][scale_types.index(key[1])]
     shift_value += distance_to_major_tonic
-    print(key)
-    print(shift_value)
-    # if shift_value > len(chromatic_scale[1]):
-    #    shift_value -= len(chromatic_scale[1])  # In case we reach the end of the chromatic scale
     return shift_value
 
 
@@ -216,16 +204,16 @@ def convert_sharp_to_flat(token):
     return token
 
 
-def evaluate_transposing(music, transposed_music, pieces_to_compare):
+def evaluate_transposing(music, transposed_music):
     music_pieces = split_into_pieces(music)
     transposed_music_pieces = split_into_pieces(transposed_music)
-    for piece in pieces_to_compare:
-        print(str(piece) + "ST PIECE")
+    for i, _ in enumerate(music_pieces):
+        print(str(i) + "ST PIECE")
         print("___________________________________________________\n")
         print("Original:\n")
-        print(music_pieces[piece] + "\n")
+        print(music_pieces[i] + "\n")
         print("Transposed:\n")
-        print(transposed_music_pieces[piece] + "\n")
+        print(transposed_music_pieces[i] + "\n")
 
 
 if __name__ == '__main__':
@@ -233,4 +221,4 @@ if __name__ == '__main__':
     music_without_metrics = remove_meters(music)
     music_without_metrics_and_with_flats = convert_all_sharps_to_flats(music_without_metrics)
     transposed_music = transpose(music_without_metrics_and_with_flats)
-    evaluate_transposing(music_without_metrics_and_with_flats, transposed_music, [0, 5, 100])
+    evaluate_transposing(music_without_metrics_and_with_flats, transposed_music)
